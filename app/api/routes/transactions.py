@@ -14,7 +14,7 @@ router = APIRouter()
 @router.post("/createTransaction")
 def create_transaction(transaction: dict) -> Any:
     """
-    Create new trans.
+    Create a single transaction.
     """
     # transaction{
     #     "method": "add_expense",
@@ -36,27 +36,27 @@ def create_transaction(transaction: dict) -> Any:
     sender_block_id = sqlite_db.SQLiteDB().get_user_block_id(transaction["paid_by"])
     sender_user_details = db.get_user_details(sender_block_id)
     
-    for i in range(len(transaction["owed_by"])):
-        receiver_public_key = sqlite_db.SQLiteDB().get_user_public_key(transaction["owed_by"][i])
-        txn = Transaction(
-            id = str(uuid.uuid4()),
-            sender = sender_user_details['public_key'],
-            sender_private_key = sender_user_details['private_key'],
-            receiver = receiver_public_key,
-            amount = int(transaction["owed_amounts"][i]),
-            timestamp = datetime.now().timestamp(),
-            asset = asset
-        )
-        (id, err) = db.add_transaction(txn)
-        if err is not None:
-            print("Transaction not committed. Error:", err)
-            return {
-                'success': False,
-                'error': err
-            }
-        else:
-            print("Transaction committed successfully")
-            sqlite_db.SQLiteDB().insert_transaction(transaction["paid_by"], transaction["owed_by"][i], transaction["owed_amounts"][i], transaction["description"], str(txn.timestamp), id)
+    # for i in range(len(transaction["owed_by"])):
+    receiver_public_key = sqlite_db.SQLiteDB().get_user_public_key(transaction["owed_by"][0])
+    txn = Transaction(
+        id = str(uuid.uuid4()),
+        sender = sender_user_details['public_key'],
+        sender_private_key = sender_user_details['private_key'],
+        receiver = receiver_public_key,
+        amount = int(transaction["owed_amounts"][0]),
+        timestamp = datetime.now().timestamp(),
+        asset = asset
+    )
+    (id, err) = db.add_transaction(txn)
+    if err is not None:
+        print("Transaction not committed. Error:", err)
+        return {
+            'success': False,
+            'error': err
+        }
+    else:
+        print("Transaction committed successfully")
+        sqlite_db.SQLiteDB().insert_transaction(transaction["paid_by"], transaction["owed_by"][0], transaction["owed_amounts"][0], transaction["description"], str(txn.timestamp), id)
     return {
         'success': True,
         'id': id
