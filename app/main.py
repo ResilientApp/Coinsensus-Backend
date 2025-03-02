@@ -2,9 +2,8 @@ from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from starlette.middleware.cors import CORSMiddleware
 import uvicorn
-from core import sqlite_db
 
-from api.main import api_router
+from app.api.main import api_router
 
 app = FastAPI()
 
